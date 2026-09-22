@@ -773,29 +773,4 @@ The requirements call for a lightweight UI to confirm end-to-end functionality. 
 
 ---
 
-## Lambda Deployment Notes
 
-**FastAPI on Lambda** works well via [Mangum](https://github.com/jordanahaines/mangum), an ASGI-to-Lambda adapter:
-
-```python
-from mangum import Mangum
-from app.main import app
-
-handler = Mangum(app)
-```
-
-**However, SQLite on Lambda is problematic:**
-
-| Issue | Why It Matters |
-|-------|---------------|
-| Ephemeral `/tmp` | Data is lost on cold starts |
-| Per-invocation isolation | Concurrent Lambda instances each have their own `/tmp` |
-| 10 GB limit | `/tmp` has a maximum of 10 GB |
-
-**Solutions for persistent storage on Lambda:**
-
-1. **AWS EFS** — Mount an Elastic File System to Lambda for shared, persistent SQLite storage
-2. **DynamoDB** — Swap to a serverless-native database (no file I/O)
-3. **RDS / Aurora** — Use a managed PostgreSQL/MySQL instance
-
-For this project, SQLite is ideal for local development and assessment. For production Lambda deployment, the recommended path is EFS mount or a swap to DynamoDB.
